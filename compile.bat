@@ -1,0 +1,1 @@
+javac -sourcepath src -d build src/HolyShip/Main.java -encoding UTF-8
