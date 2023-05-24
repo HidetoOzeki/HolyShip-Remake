@@ -1,1 +1,1 @@
-java -classpath build src/HolyShip/Main.java
+java -classpath build -Dfile.encoding=UTF-8 src/HolyShip/Main.java
