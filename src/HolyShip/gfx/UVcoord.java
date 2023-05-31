@@ -8,4 +8,10 @@ public class UVcoord {
         u = 0.0;
         v = 0.0;
     }
+
+    public UVcoord(double u,double v, double w){
+        this.u = u;
+        this.v = v;
+        this.w = w;
+    }
 }

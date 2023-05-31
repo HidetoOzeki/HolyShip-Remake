@@ -31,4 +31,13 @@ public class Bitmap{
     public int[] getRaster(){
         return pixels;
     }
+
+    public int getUV(double u,double v){
+        if(u<0)u=-u;
+        if(v<0)v=-v;
+        int xp = (int)(u*w)%w;
+        int yp = (int)(v*h)%h;
+        
+        return pixels[xp+yp*w];
+    }
 }

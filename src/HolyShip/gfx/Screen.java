@@ -15,6 +15,10 @@ public class Screen {
     int center_y;
     Vec3 view_offset;
 
+    Bitmap texture = null;
+
+    int fillcolor = 0;
+
     public Screen(BufferedImage image,int width,int height){
         w = width;
         h = height;
@@ -64,6 +68,84 @@ public class Screen {
         }
     }
 
+    public void setFillColor(int col){
+        this.fillcolor = col;
+    }
+
+    public void setTexture(Bitmap texture){
+        this.texture = texture;
+    }
+
+    public void tline(int y,int xl,int xr,UVcoord uv1,UVcoord uv2){
+        if(texture==null)return;
+        int length = xr-xl;
+        double du = (uv2.u-uv1.u)/length;
+        double dv = (uv2.v-uv1.v)/length;
+        double u = uv1.u;
+        double v = uv1.v;
+        for(int i = xl;i < xr;i++){
+            u+=du;
+            v+=dv;
+            put(i,y,texture.getUV(u,v));
+        }
+    }
+
+    public void triangle(Vec3 v1,Vec3 v2,Vec3 v3,UVcoord uv1,UVcoord uv2,UVcoord uv3){
+        Vec3 temp;
+        if(v1.y > v3.y){
+            temp = v1;
+            v1 = v3;
+            v3 = temp;
+        }
+        if(v1.y > v2.y){
+            temp = v1;
+            v1 = v2;
+            v2 = temp;
+        }
+        if(v2.y > v3.y){
+            temp = v2;
+            v2 = v3;
+            v3 = temp;
+        }
+
+        double a = (v3.x-v1.x)/(v3.y-v1.y);
+        double b = (v2.x-v1.x)/(v2.y-v1.y);
+        double c = (v3.x-v2.x)/(v3.y-v2.y);
+
+        double l = v1.x;
+        double r = v1.x;
+
+        if((int)v1.y==(int)v2.y){
+            boolean sides = v1.x < v2.x;
+            l = sides ? v1.x:v2.x;
+            r = sides ? v2.x:v1.x;
+        }
+
+        if(a > b){
+            for(int i = (int)v1.y;i < v2.y;i++){
+                tline(i,(int)l,(int)r,null,null);
+                l+=b;
+                r+=a;
+            }
+            for(int i = (int)v2.y;i < v3.y;i++){
+                tline(i,(int)l,(int)r,null,null);
+                l+=c;
+                r+=a;
+            }
+        }else{
+            for(int i = (int)v1.y;i < v2.y;i++){
+                tline(i,(int)l,(int)r,null,null);
+                l+=a;
+                r+=b;
+            }
+            for(int i = (int)v2.y;i < v3.y;i++){
+                tline(i,(int)l,(int)r,null,null);
+                l+=a;
+                r+=c;
+            }
+        }
+    }
+
     public void triangle(Vec3 v1,Vec3 v2,Vec3 v3){
         Vec3 temp;
         if(v1.y > v3.y){
@@ -87,18 +169,37 @@ public class Screen {
         double c = (v3.x-v2.x)/(v3.y-v2.y);
 
         double l = v1.x;
-        double r = v1.y;
+        double r = v1.x;
 
-        double linc = 0;
-        double rinc = 0;
-
-        for(int i = (int)v1.y;i < v2.y;i++){
-            for(int j = (int)l;j < r;j++){put(j,i,0xffffff);}
+        if((int)v1.y==(int)v2.y){
+            boolean sides = v1.x < v2.x;
+            l = sides ? v1.x:v2.x;
+            r = sides ? v2.x:v1.x;
         }
-        
-        put((int)v1.x,(int)v1.y,0xff0000);
-        put((int)v2.x,(int)v2.y,0x00ff00);
-        put((int)v3.x,(int)v3.y,0x0000ff);
+
+        if(a > b){
+            for(int i = (int)v1.y;i < v2.y;i++){
+                for(int j = (int)l;j < r;j++){put(j,i,fillcolor);}
+                l+=b;
+                r+=a;
+            }
+            for(int i = (int)v2.y;i < v3.y;i++){
+                for(int j = (int)l;j < r;j++){put(j,i,fillcolor);}
+                l+=c;
+                r+=a;
+            }
+        }else{
+            for(int i = (int)v1.y;i < v2.y;i++){
+                for(int j = (int)l;j < r;j++){put(j,i,fillcolor);}
+                l+=a;
+                r+=b;
+            }
+            for(int i = (int)v2.y;i < v3.y;i++){
+                for(int j = (int)l;j < r;j++){put(j,i,fillcolor);}
+                l+=a;
+                r+=c;
+            }
+        }
     }
 
     public Vec3 getScreenCoordinate(Vec3 v){

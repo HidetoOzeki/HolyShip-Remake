@@ -2,12 +2,14 @@ package HolyShip;
 import javax.swing.JFrame;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Locale;
 
 import HolyShip.gfx.Screen;
+import HolyShip.gfx.UVcoord;
 import HolyShip.gfx.Bitmap;
 import HolyShip.gfx.Vec3;
 import java.awt.event.*;
@@ -15,7 +17,10 @@ public class Main implements Runnable{
 
     public static int WIDTH = 320;
     public static int HEIGHT = 240;
-    public static int SCALE = 2;
+    public static int SCALE = 3;
+
+    int mx = 0;
+    int my = 0;
 
     BufferedImage image = new BufferedImage(WIDTH,HEIGHT,BufferedImage.TYPE_INT_RGB);
 
@@ -26,6 +31,7 @@ public class Main implements Runnable{
     InputHandler input;
 
     Bitmap fractal;
+    Bitmap texture;
 
     String[] fontnames;
 
@@ -39,14 +45,25 @@ public class Main implements Runnable{
         window.createBufferStrategy(2);
         str = window.getBufferStrategy();
         window.addKeyListener(input = new InputHandler());
-        fractal = new Bitmap("res/fractal.png");
-        screen.background(0x999999);
 
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        fontnames = ge.getAvailableFontFamilyNames(Locale.JAPANESE);
-        for(String fonts : fontnames){
-            System.out.println(fonts);
+        fractal = new Bitmap("res/fractal.png");
+        texture = new Bitmap("res/texture.png");
+
+        screen.setTexture(texture);
+
+        screen.background(0xffffff);
+
+        /*
+
+        for(int i = 0;i < 50;i++){
+            screen.setFillColor((int)(Math.random()*0xffffff));
+            Vec3 v1 = new Vec3(Math.random()*WIDTH,Math.random()*HEIGHT,0);
+            Vec3 v2 = new Vec3(Math.random()*WIDTH,Math.random()*HEIGHT,0);
+            Vec3 v3 = new Vec3(Math.random()*WIDTH,Math.random()*HEIGHT,0);
+            screen.triangle(v1, v2, v3);
         }
+
+        */
     }
     public static void main(String[] args){
         Main main = new Main();
@@ -85,6 +102,8 @@ public class Main implements Runnable{
         screen.setFont("MS Gothic",true, 12);
         screen.text("test テスト", 32, 32);
 
+        /*
+
         for(int i = -alpharr.length/2;i < alpharr.length/2;i++){
             for(int j = -alpharr.length/2;j < alpharr.length/2;j++){
                 Vec3 v = new Vec3(i*8.0,0,j*8.0);
@@ -100,10 +119,19 @@ public class Main implements Runnable{
             }
         }
 
-        screen.triangle(v1,v2,v3);
+        */
 
+        screen.setFillColor(0xffffff);
 
-        //screen.background(0x000000);
+        screen.triangle(v1, v2, v3);
+
+        for(int i = 0;i < HEIGHT;i++){
+            if(i%2==0)continue;
+            double v = (double)i/HEIGHT;
+            UVcoord start = new UVcoord(0,v,1.0);
+            UVcoord end = new UVcoord(1.0,v,1.0);
+            screen.tline((int)i,0,WIDTH,start,end);
+        }
 
         g.drawImage(image,0,0,WIDTH*SCALE,HEIGHT*SCALE,null);
 
@@ -137,6 +165,12 @@ public class Main implements Runnable{
 
         increment+=0.01;
         r_shift=Math.sin(increment);
+
+        mx = (int)(-window.getX()/SCALE+MouseInfo.getPointerInfo().getLocation().getX()/SCALE);
+        my = (int)(-window.getY()/SCALE+MouseInfo.getPointerInfo().getLocation().getY()/SCALE);
+
+        v3.x = mx;
+        v3.y = my;
     }
 
     @Override

@@ -3,7 +3,6 @@ import java.awt.event.*;
 public class InputHandler extends KeyAdapter{
     public boolean[] keys = new boolean[0xffff];
     public InputHandler(){
-
     }
 
     public void toggle(int kc,boolean pressed){
